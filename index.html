@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>servi 3.0</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comercial Serviexpress | Control de Inventario</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-store"></i>
+                <h1>Comercializadora <span>Serviexpress</span></h1>
+            </div>
+            <div class="login-card">
+                <h2><i class="fas fa-lock"></i> Inicio de Sesión</h2>
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> Usuario</label>
+                        <select id="username" required>
+                            <option value="">Seleccione un usuario</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Inventario">Personal de Inventario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-key"></i> Contraseña</label>
+                        <div class="password-input">
+                            <input type="password" id="password" required>
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar al Sistema
+                    </button>
+                </form>
+            </div>
+            <div class="login-footer">
+                <p>Sistema de Control de Inventario v3.1</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Comercial Serviexpress</h1>
+                    <p>Sistema de Control de Inventario</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <span id="current-user">Usuario</span>
+                    <small>Administrador</small>
+                </div>
+                <button id="logout-btn" class="logout-btn" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-warehouse"></i>
+                    <h3>Menú Principal</h3>
+                </div>
+                <nav>
+                    <ul>
+                        <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="#"><i class="fas fa-boxes"></i> Inventario</a></li>
+                        <li><a href="#"><i class="fas fa-exchange-alt"></i> Movimientos</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> Reportes</a></li>
+                        <li><a href="#"><i class="fas fa-truck"></i> Proveedores</a></li>
+                        <li><a href="#"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+                    </ul>
+                </nav>
+                <div class="sidebar-footer">
+                    <p>Sesión activa: <span id="session-time">00:00</span></p>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Panel de Control</h2>
+                    <div class="breadcrumb">
+                        <span>Inicio</span> / <span class="active">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Productos</h3>
+                            <p id="total-products">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>En Stock</h3>
+                            <p id="in-stock">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Bajo Stock</h3>
+                            <p id="low-stock">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Agotados</h3>
+                            <p id="out-of-stock">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Por Vencer</h3>
+                            <p id="expiring-products">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inventory-actions">
+                    <div class="action-buttons">
+                        <button id="add-product-btn" class="btn-primary">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                        <button id="export-excel-btn" class="btn-secondary">
+                            <i class="fas fa-file-excel"></i> Exportar a Excel
+                        </button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="search-product" placeholder="Buscar producto...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+                <div class="inventory-table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th>Precio (CLP)</th>
+                                <th>Stock</th>
+                                <th>Estado</th>
+                                <th>Vencimiento</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                            <!-- Los productos se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sección de Análisis de Rotación -->
+                <div class="analytics-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-chart-line"></i> Análisis de Rotación de Productos</h3>
+                        <div class="time-filter">
+                            <select id="rotation-period">
+                                <option value="7">Últimos 7 días</option>
+                                <option value="30" selected>Últimos 30 días</option>
+                                <option value="90">Últimos 90 días</option>
+                                <option value="365">Últimos 365 días</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="rotation-chart"></canvas>
+                    </div>
+                    
+                    <div class="rotation-legend">
+                        <div class="legend-item">
+                            <span class="legend-color high-rotation"></span>
+                            <span>Alta Rotación</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color medium-rotation"></span>
+                            <span>Media Rotación</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color low-rotation"></span>
+                            <span>Baja Rotación</span>
+                        </div>
+                    </div>
+                    
+                    <div class="rotation-table-container">
+                        <table class="rotation-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Ventas (Unidades)</th>
+                                    <th>Rotación (Ventas/día)</th>
+                                    <th>Recomendación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rotation-body">
+                                <!-- Los datos de rotación se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de Productos por Vencer -->
+                <div class="analytics-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-clock"></i> Productos por Vencer</h3>
+                        <div class="time-filter">
+                            <select id="expiry-days-filter">
+                                <option value="3">Próximos 3 días</option>
+                                <option value="7" selected>Próximos 7 días</option>
+                                <option value="15">Próximos 15 días</option>
+                                <option value="30">Próximos 30 días</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="inventory-table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Vencimiento</th>
+                                    <th>Días Restantes</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expiring-body">
+                                <!-- Los productos por vencer se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar producto -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title"><i class="fas fa-box"></i> Agregar Nuevo Producto</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-code"><i class="fas fa-barcode"></i> Código del Producto</label>
+                            <input type="text" id="product-code" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-category"><i class="fas fa-tag"></i> Categoría</label>
+                            <select id="product-category" required>
+                                <option value="">Seleccione una categoría</option>
+                                <option value="Lácteos">Lácteos</option>
+                                <option value="Cecinas">Cecinas</option>
+                                <option value="Aseo">Aseo</option>
+                                <option value="Aseo Personal">Aseo Personal</option>
+                                <option value="Papeles">Papeles</option>
+                                <option value="Confitería">Confitería</option>
+                                <option value="Snacks">Snacks</option>
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Mascotas">Mascotas</option>
+                                <option value="Congelados">Congelados</option>
+                                <option value="Electrónicos">Para Bebes</option>
+                                <option value="Oficina">Panadería</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-name"><i class="fas fa-box-open"></i> Nombre del Producto</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description"><i class="fas fa-align-left"></i> Descripción</label>
+                        <textarea id="product-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-price"><i class="fas fa-dollar-sign"></i> Precio Unitario (CLP)</label>
+                            <input type="number" id="product-price" min="0" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-stock"><i class="fas fa-cubes"></i> Cantidad en Stock</label>
+                            <input type="number" id="product-stock" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-min-stock"><i class="fas fa-exclamation-triangle"></i> Stock Mínimo</label>
+                            <input type="number" id="product-min-stock" min="1" value="5" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-expiry"><i class="fas fa-calendar-times"></i> Fecha de Vencimiento (opcional)</label>
+                        <input type="date" id="product-expiry">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-modal">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ajustar stock -->
+    <div id="adjust-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2><i class="fas fa-exchange-alt"></i> Ajustar Stock</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="adjust-form">
+                    <input type="hidden" id="adjust-product-id">
+                    <div class="form-group">
+                        <label for="adjust-type"><i class="fas fa-arrows-alt-v"></i> Tipo de Movimiento</label>
+                        <select id="adjust-type" required>
+                            <option value="add">Agregar al Inventario</option>
+                            <option value="remove">Retirar del Inventario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjust-quantity"><i class="fas fa-calculator"></i> Cantidad</label>
+                        <input type="number" id="adjust-quantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adjust-reason"><i class="fas fa-comment"></i> Razón/Motivo</label>
+                        <textarea id="adjust-reason" rows="2" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-modal">Cancelar</button>
+                        <button type="submit" class="btn-primary">Aplicar Ajuste</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de alerta de stock crítico -->
+    <div id="critical-stock-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header warning">
+                <h2><i class="fas fa-exclamation-triangle"></i> Stock Crítico</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="alert-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p id="critical-stock-message"></p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-primary close-modal">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Proveedores -->
+    <div id="suppliers-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-truck"></i> Gestión de Proveedores</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="suppliers-actions">
+                    <button id="add-invoice-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Agregar Factura
+                    </button>
+                    <div class="search-box">
+                        <input type="text" id="search-supplier" placeholder="Buscar proveedor...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="suppliers-table-container">
+                    <table class="suppliers-table">
+                        <thead>
+                            <tr>
+                                <th>Proveedor</th>
+                                <th>Última Factura</th>
+                                <th>Fecha</th>
+                                <th>Monto (CLP)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliers-body">
+                            <!-- Los proveedores se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Factura -->
+    <div id="invoice-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Registrar Factura</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="invoice-form">
+                    <div class="form-group">
+                        <label for="supplier-name"><i class="fas fa-truck"></i> Proveedor</label>
+                        <select id="supplier-name" required>
+                            <option value="">Seleccione proveedor</option>
+                            <option value="Minuto Verde">Minuto Verde</option>
+                            <option value="Agrosuper">Agrosuper</option>
+                            <option value="San Jorge">San Jorge</option>
+                            <option value="Evercrips">Evercrips</option>
+                            <option value="Marco Polo">Marco Polo</option>
+                            <option value="Ariztia">Ariztia</option>
+                            <option value="PF">PF</option>
+                            <option value="Colun">Colun</option>
+                            <option value="Soprole">Soprole</option>
+                            <option value="Huilco">Huilco</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoice-number"><i class="fas fa-barcode"></i> N° Factura</label>
+                            <input type="text" id="invoice-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoice-date"><i class="fas fa-calendar-alt"></i> Fecha</label>
+                            <input type="date" id="invoice-date" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoice-amount"><i class="fas fa-dollar-sign"></i> Monto (CLP)</label>
+                        <input type="number" id="invoice-amount" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoice-products"><i class="fas fa-boxes"></i> Productos incluidos</label>
+                        <textarea id="invoice-products" rows="3" placeholder="Lista de productos recibidos..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-modal">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar Factura</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
